@@ -9,7 +9,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import seaborn as sns
 
-# Set page configuration
 st.set_page_config(
     page_title="Hotel Booking Analysis",
     page_icon="🏨",
@@ -17,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Load data
+
 @st.cache_data
 def load_data():
     data = pd.read_csv("Dataset/hotel_bookings.csv")
@@ -26,54 +25,111 @@ def load_data():
 data = load_data()
 st.markdown("""
     <style>
+    /* General App Styling */
+    .stApp {
+        background-color: #daebe8 !important;
+    }
+
+    /* Title Styling */
     .title {
         font-size: 30px;
         font-weight: bold;
-        color: #2F4F4F;
+        color: #87bdd8 !important;
     }
+
+    /* Subtitle Styling */
     .subtitle {
         font-size: 20px;
         font-weight: bold;
-        color: #3CB371;
+        color: #b7d7e8 !important;
     }
+
+    /* Section Text Styling */
     .section {
         font-size: 16px;
         font-weight: normal;
-        color: #000000;
+        color: #87bdd8 !important;
     }
-    .stApp {
-        background-color: #f8f8f8;
+
+    /* Sidebar Styling */
+    .css-1d391kg {  /* Sidebar Background */
+        background-color: #b7d7e8 !important;
     }
+
+    /* Button Styling */
     .stButton>button {
-        background-color: #4CAF50;
-        color: white;
+        background-color: #cfe0e8 !important;
+        color: #87bdd8 !important;
         font-weight: bold;
+        border-radius: 5px;
+        border: none;
+    }
+
+    .stButton>button:hover {
+        background-color: #87bdd8 !important;
+        color: #daebe8 !important;
+    }
+
+    /* Tabs Styling */
+    .stTabs .stTab {
+        background-color: #cfe0e8 !important;
+        color: #87bdd8 !important;
+        border-radius: 5px;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .stTabs .stTab:hover {
+        background-color: #87bdd8 !important;
+        color: #daebe8 !important;
+    }
+
+    .stTabs .stTab.stTabActive {
+        background-color: #87bdd8 !important;
+        color: #daebe8 !important;
+        font-weight: bold !important;
+    }
+
+    /* Table Header and Data */
+    .stTable th {
+        background-color: #cfe0e8 !important;
+        color: #87bdd8 !important;
+        padding: 10px;
+    }
+
+    .stTable td {
+        background-color: #daebe8 !important;
+        color: #87bdd8 !important;
+        padding: 10px;
+    }
+
+    .stTable tr:hover {
+        background-color: #b7d7e8 !important;
+        color: #daebe8 !important;
+    }
+
+    /* Plotly Chart Styling */
+    .plotly-graph-div {
+        border-radius: 10px !important;
+        background-color: #daebe8 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
-# Preprocessing for Model
 @st.cache_data
 def preprocess_data(data):
-    # Handle missing values
     data.fillna(data.median(numeric_only=True), inplace=True)
-    
-    # Feature selection
     feature_cols = ["hotel", "market_segment", "is_repeated_guest", 
                     "previous_cancellations", "previous_bookings_not_canceled", "customer_type"]
     target_col = "is_canceled"
-    
-    # Encode categorical columns
     categorical_cols = [col for col in feature_cols if data[col].dtype == 'object']
     encoder = ce.OrdinalEncoder(cols=categorical_cols)
     data[categorical_cols] = encoder.fit_transform(data[categorical_cols])
-    
-    # Scale numerical columns
     numerical_cols = ["is_repeated_guest", "previous_cancellations", "previous_bookings_not_canceled"]
     scaler = StandardScaler()
     data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
     
-    # Split into train/test sets
     X = data[feature_cols]
     y = data[target_col].astype(int)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=3)
@@ -91,14 +147,13 @@ def train_model(X_train, y_train):
 
 model = train_model(X_train, y_train)
 
-# Sidebar Navigation
+
 with st.sidebar:
     selected_section = st.radio(
         "Navigate to Section",
         ["Introduction", "EDA", "Model", "Conclusion"]
     )
 
-# Introduction Section
 if selected_section == "Introduction":
     st.title("Hotel Booking Analysis")
     st.subheader("Project Objectives")
@@ -110,12 +165,9 @@ if selected_section == "Introduction":
     st.subheader("Dataset Overview")
     st.write(data.head())
 
-# EDA Section
-# EDA Section
+
 elif selected_section == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
-
-    # Add a tab selector for EDA
     eda_tab = st.selectbox(
         "Choose an analysis",
         [
@@ -232,22 +284,11 @@ elif selected_section == "EDA":
         )
         st.plotly_chart(fig, use_container_width=True)
     elif eda_tab == "Correlation Heatmap":
-        # Import necessary libraries
-
-    # Assuming `data` is your DataFrame
-    
         st.subheader("Correlation Heatmap")
-        
-        # Select only numerical columns
         numerical_data = data.select_dtypes(include=['float64', 'int64'])
-        
-        # Compute the correlation matrix
         correlation_matrix = numerical_data.corr()
-        
-        # Set up the matplotlib figure
         plt.figure(figsize=(12, 8))
-        
-        # Generate a heatmap using seaborn
+
         heatmap = sns.heatmap(
             correlation_matrix, 
             annot=True, 
@@ -258,24 +299,16 @@ elif selected_section == "EDA":
             linewidths=0.5,
             annot_kws={"size": 10}
         )
-        
-        # Set the title
+
         plt.title("Correlation Heatmap", fontsize=16)
         
-        # Display the heatmap in Streamlit
         st.pyplot(plt)
 
-    # Call the function to display the heatmap
-
-
-
-
-# Model Section
 elif selected_section == "Model":
     st.title("Booking Cancellation Prediction Model")
     st.subheader("Provide Input for Prediction")
 
-    # User input
+  
     hotel = st.selectbox("Hotel Type", ["City Hotel", "Resort Hotel"])
     market_segment = st.selectbox("Market Segment", ["Online TA", "Offline TA/TO", "Direct", "Corporate", "Complementary", "Groups", "Undefined"])
     is_repeated_guest = st.selectbox("Is Repeated Guest", [0, 1])
@@ -283,7 +316,7 @@ elif selected_section == "Model":
     previous_bookings_not_canceled = st.number_input("Previous Bookings Not Canceled", min_value=0, step=1)
     customer_type = st.selectbox("Customer Type", ["Transient", "Contract", "Transient-Party", "Group"])
 
-    # Create input dataframe
+
     user_input = pd.DataFrame({
         "hotel": [hotel],
         "market_segment": [market_segment],
@@ -293,11 +326,10 @@ elif selected_section == "Model":
         "customer_type": [customer_type]
     })
 
-    # Preprocess user input
+
     user_input[categorical_cols] = encoder.transform(user_input[categorical_cols])
     user_input[numerical_cols] = scaler.transform(user_input[numerical_cols])
 
-    # Predict and display result
     if st.button("Predict"):
         prediction = model.predict(user_input)
         prediction_proba = model.predict_proba(user_input)[0]
