@@ -120,25 +120,24 @@ st.markdown("""
 @st.cache_data
 def preprocess_data(data):
     data.fillna(data.median(numeric_only=True), inplace=True)
-    feature_cols = ["hotel", "market_segment", "is_repeated_guest", 
+    fc = ["hotel", "market_segment", "is_repeated_guest", 
                     "previous_cancellations", "previous_bookings_not_canceled", "customer_type"]
-    target_col = "is_canceled"
-    categorical_cols = [col for col in feature_cols if data[col].dtype == 'object']
-    encoder = ce.OrdinalEncoder(cols=categorical_cols)
-    data[categorical_cols] = encoder.fit_transform(data[categorical_cols])
-    numerical_cols = ["is_repeated_guest", "previous_cancellations", "previous_bookings_not_canceled"]
+    tc = "is_canceled"
+    cat_cols = [col for col in fc if data[col].dtype == 'object']
+    encoder = ce.OrdinalEncoder(cols=cat_cols)
+    data[cat_cols] = encoder.fit_transform(data[cat_cols])
+    num_cols = ["is_repeated_guest", "previous_cancellations", "previous_bookings_not_canceled"]
     scaler = StandardScaler()
-    data[numerical_cols] = scaler.fit_transform(data[numerical_cols])
+    data[num_cols] = scaler.fit_transform(data[num_cols])
     
-    X = data[feature_cols]
-    y = data[target_col].astype(int)
+    X = data[fc]
+    y = data[tc].astype(int)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=3)
     
-    return X_train, X_test, y_train, y_test, encoder, scaler, categorical_cols, numerical_cols
+    return X_train, X_test, y_train, y_test, encoder, scaler, cat_cols, num_cols
 
 X_train, X_test, y_train, y_test, encoder, scaler, categorical_cols, numerical_cols = preprocess_data(data)
 
-# Train Model
 @st.cache_data
 def train_model(X_train, y_train):
     model = LogisticRegression(random_state=120, max_iter=1000)
