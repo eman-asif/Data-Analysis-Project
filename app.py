@@ -25,10 +25,6 @@ def load_data():
 data = load_data()
 st.markdown("""
     <style>
-    /* General App Styling */
-    .stApp {
-        background-color: #daebe8 !important;
-    }
 
     /* Title Styling */
     .title {
